@@ -6,7 +6,9 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.github.matheusalencar23.data.vo.v1.PersonVO;
 import io.github.matheusalencar23.exceptions.ResourceNotFoundException;
+import io.github.matheusalencar23.mapper.DozerMapper;
 import io.github.matheusalencar23.model.Person;
 import io.github.matheusalencar23.repositories.PersonRepository;
 
@@ -17,7 +19,7 @@ public class PersonService {
 	@Autowired
 	PersonRepository repository;
 	
-	public Person findById(Long id) {
+	public PersonVO findById(Long id) {
 		logger.info("Finding one person!");
 		
 		Person person = new Person();
@@ -26,22 +28,25 @@ public class PersonService {
 		person.setAddress("Fortaleza - Ceará - Brasil");
 		person.setGender("Male");
 		
-		return repository
+		Person entity = repository
 				.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("No records found for ID: " + id + "."));
+		
+		return DozerMapper.parseObject(entity, PersonVO.class);
 	}
 	
-	public List<Person> findAll() {
+	public List<PersonVO> findAll() {
 		logger.info("Finding all people!");
-		return repository.findAll();
+		return DozerMapper.parseListObject(repository.findAll(), PersonVO.class);
 	}
 	
-	public Person create(Person person) {
+	public PersonVO create(PersonVO person) {
 		logger.info("Creating one person!");
-		return repository.save(person);
+		Person entity = DozerMapper.parseObject(person, Person.class);
+		return DozerMapper.parseObject(repository.save(entity), PersonVO.class);
 	}
 	
-	public Person update(Person person) {
+	public PersonVO update(PersonVO person) {
 		logger.info("Updating one person!");
 		
 		Person entity = repository
@@ -53,7 +58,7 @@ public class PersonService {
 		entity.setAddress(person.getAddress());
 		entity.setGender(person.getGender());
 			
-		return repository.save(entity);
+		return DozerMapper.parseObject(repository.save(entity), PersonVO.class);
 	}
 	
 	public void delete(Long id) {
