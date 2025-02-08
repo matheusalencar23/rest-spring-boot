@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.github.matheusalencar23.data.vo.v1.PersonVO;
+import io.github.matheusalencar23.data.vo.v2.PersonVOV2;
 import io.github.matheusalencar23.exceptions.ResourceNotFoundException;
 import io.github.matheusalencar23.mapper.DozerMapper;
+import io.github.matheusalencar23.mapper.custom.PersonMapper;
 import io.github.matheusalencar23.model.Person;
 import io.github.matheusalencar23.repositories.PersonRepository;
 
@@ -18,6 +20,9 @@ public class PersonService {
 
 	@Autowired
 	PersonRepository repository;
+	
+	@Autowired
+	PersonMapper mapper;
 	
 	public PersonVO findById(Long id) {
 		logger.info("Finding one person!");
@@ -68,6 +73,12 @@ public class PersonService {
 				.orElseThrow(() -> new ResourceNotFoundException("No records found for ID: " + id + "."));
 	
 		repository.delete(entity);
+	}
+
+	public PersonVOV2 createV2(PersonVOV2 person) {
+		logger.info("Creating one person with v2!");
+		Person entity = mapper.convertVoToEntity(person);
+		return mapper.convertEntityToVo(repository.save(entity));
 	}
 	
 }
